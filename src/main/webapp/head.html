@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Department Head Welcome Page</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <style>
+    /* Remove the navbar's default margin-bottom and rounded borders */ 
+    .navbar {
+      background-color: crimson;
+      margin-bottom: 0;
+      border-radius: 0;
+    }
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+ th {
+  border: 1px solid  black;
+  text-align: left;
+  padding: 8px;
+  background-color: pink;
+}
+
+tr:nth-child(even) {
+  background-color: blanchedalmond;
+}
+    .tbutton {
+    height: 20px;
+    width:  100px;
+    }
+    .button {
+  background-color:  #f44336; 
+  color: black; 
+  border: 2px solid  #f44336;
+  height: 50px;
+  width:  200px;
+}
+
+.button:hover {
+  background-color: white;
+  color:  #f44336;
+  padding : 5px;
+}
+    /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+    .row.content {height: 1000px}
+    
+    /* Set gray background color and 100% height */
+    .sidenav {
+      padding-top: 20px;
+      background-color: rgb(41, 38, 38);
+      height: 100%;
+    }
+    
+  
+    
+  </style>
+</head>
+<body onload="populate()">
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" style="color:black">Tuition Reimbursement Management System</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="http://localhost:8080/Project1"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+  
+<div class="container-fluid text-center">    
+  <div class="row content">
+    <div class="col-sm-2 sidenav">
+      <p id = "widget" style = "color :blanchedalmond"></p>
+     
+    </div>
+    <div class="col-sm-8 text-left"> 
+      <h1 id = "welcome"></h1>
+      <h3 id = "welcome2">CHOOSE AN OPTION?</h3>
+      <br>
+      <div id = "notify" style = "display: none">
+        <table id = "notifications">
+            <tr>
+                <th>Request #</th>
+                <th>Action Required</th>
+                <th>Options</th>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <br><br>
+      </div>
+
+        <div id = "options" style="display: block;"><button class = "button button" id='pendingReq' onclick="showNotify()" >Notifications</button></div>            
+        <div id = "back" style="display: none;"><button class = "button button" id='notifBack' onclick="back()" >Go Back</button></div>
+    </div></div>
+</div>
+
+
+<script>
+var numNotif=0;
+var eid = "";
+var fname = "";
+var lname = "";
+var pass = "";
+var remaining = 0;
+var eventstart = "";
+var eventtype= '';
+var dates = new Date();
+var locale ="";
+var info = "";
+var cost = 0;
+var date = "";
+var preim = "";
+var just = '';
+var mingrade= '';
+
+function back(){
+    document.getElementById("options").style.display= "block";
+    document.getElementById("notify").style.display = "none";    
+}
+function showNotify(){
+  getNotifnum();
+    document.getElementById("options").style.display= "none";
+    document.getElementById("back").style.display= "block";
+    console.log("numnotif = " + numNotif);
+   if(numNotif > 0){
+    document.getElementById("notify").style.display = "block";
+    for(i = 0; i<numNotif; i++)
+    getNotifs();
+   }
+   else document.getElementById("welcome2").innerHTML = "There are no notifications";
+}
+function getNotifnum(){
+  console.log(eid);
+    let url = "http://localhost:8080/Project1/do/?action=notifnum&eid="+eid;
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+          if(this.readyState == 4 && this.status == 200) {
+                //Step 4.5 - This will execute with a successfully completed Request.
+                console.log("Successful getNotifnum Call");
+                //The response body can be found using: this.responseText
+                console.log(this.responseText);
+                let data = JSON.parse(this.responseText);
+                console.log(data);
+                 numNotif = parseInt(data.num);
+                 console.log("this is notifs"+numNotif); 
+                 document.getElementById("welcome2").innerHTML = 'Pending Notifications :'+ numNotif;
+                }                           
+                    
+                                            
+                                                        }
+        xhttp.open("GET",url,true);
+        xhttp.send();}
+function getNotifs() {
+    let url = "http://localhost:8080/Project1/do/?action=notify&eid="+eid;
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+          if(this.readyState == 4 && this.status == 200) {
+                //Step 4.5 - This will execute with a successfully completed Request.
+                console.log("Successful getNotify Call");
+                //The response body can be found using: this.responseText
+                console.log(this.responseText);
+                let data = JSON.parse(this.responseText);
+                 let table = document.getElementById("notifications");
+                  let row = table.insertRow(-1);
+                  let cell1 = row.insertCell(-1);
+                  let cell2 = row.insertCell(-1);
+                  let cell3 = row.insertCell(-1);
+                  
+                  cell1.innerHTML = data.rid;
+                  cell2.innerHTML = 'Approval/Denial';
+                  
+                  let but = document.createElement("button");
+                  but.setAttribute("onclick","res('a',this.parentNode.parentNode)");
+                  but.innerHTML="Approve";
+
+                  let butt = document.createElement("button");
+                  butt.setAttribute("onclick","res('d',this.parentNode.parentNode)");                 
+                  butt.innerHTML="Deny";
+                  cell3.appendChild(but);
+                  cell3.appendChild(butt);
+                  
+                  }}
+        
+        
+        
+        xhttp.open("GET",url,true);
+        xhttp.send();
+         }
+function res(a,p){
+                var v = p.cells[0].innerHTML;
+                var action;
+                switch(a){
+                  case 'a': action = 'hApprove';break;
+                  case 'd': action = 'deny';break;
+                }
+                let url = "http://localhost:8080/Project1/do/?action="+action +"&rid="+v+"&eid="+eid;
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+          if(this.readyState == 4 && this.status == 200) {
+                //Step 4.5 - This will execute with a successfully completed Request.
+                let data = JSON.parse(this.responseText);
+                console.log(data);
+                reload();populate();back();document.getElementById("notifications").innerHTML = "<tr><th>Request #</th><th>Action Required</th><th>Options</th></tr>";
+                }                           
+                                                        }
+        xhttp.open("GET",url,true);
+        xhttp.send();}
+function populate(){
+        document.getElementById("widget").innerHTML = new Date();
+        let url = "http://localhost:8080/Project1/do/?action=populate";
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+          if(this.readyState == 4 && this.status == 200) {
+                //Step 4.5 - This will execute with a successfully completed Request.
+                console.log("Successful populate Call");
+                //The response body can be found using: this.responseText
+                // console.log(this.responseText);
+                let data = JSON.parse(this.responseText);
+              eid = data.eid; fname = data.fname; lname = data.lname;remaining = data.remaining;       
+             document.getElementById("welcome").innerHTML = 'WELCOME '+ fname.toUpperCase();
+             getNotifnum();   
+            }}
+        xhttp.open("GET",url,true);
+        xhttp.send();
+    
+    }
+function reload(){
+        console.log(eid + pass);
+        let url = "http://localhost:8080/Project1/do/?action=login&eid=" +eid+"&pass="+pass;
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+          if(this.readyState == 4 && this.status == 200) {
+                let data = JSON.parse(this.responseText);
+                
+                }
+        }
+        xhttp.open("GET",url,true);
+        xhttp.send();
+
+    }
+</script>
+</body>
+</html>
